@@ -27,6 +27,8 @@ local Settings = {
 	
 	equipSound = game.ReplicatedStorage.Sounds.Knife.KnifeSwing;
 	equipAnim = "rbxassetid://106315787742180";
+
+    inspectAnim = "rbxassetid://85073803499728";
 }
 
 return Settings

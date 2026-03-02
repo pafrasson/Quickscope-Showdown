@@ -14,10 +14,10 @@ local mouse = player:GetMouse()
 
 -- bools
 local isAiming = false
-local isShooting = false
 local isReloading = false
 local isEquipping = false
 local canShoot = true
+local canInspect = true
 
 local debounce = false
 
@@ -30,6 +30,7 @@ local lastCameraCF = CFrame.new()
 local reloadAnim = nil
 local fireAnim = nil
 local equipAnim = nil
+local inspectAnim = nil
 
 local fireSound = nil
 local reloadSound = nil
@@ -87,7 +88,7 @@ function loadSlot(Item)
                     local animator = controller and controller:WaitForChild("Animator", 5)
 
                     if animator then
-                        -- 1. CARREGAR TIRO (FIRE)
+                        -- CARREGAR TIRO (FIRE)
                         local tempFire = Instance.new("Animation")
                         tempFire.AnimationId = framework.module.fireAnim
                         fireAnim = animator:LoadAnimation(tempFire)
@@ -129,6 +130,15 @@ function loadSlot(Item)
                         else
                             -- Se não tiver animação de equipar, garante que não fica travado
                             isEquipping = false
+                        end
+
+                        if framework.module.inspectAnim then
+                            local tempInspect = Instance.new("Animation")
+                            tempInspect.AnimationId = framework.module.inspectAnim
+                                                    
+                            inspectAnim = animator:LoadAnimation(tempInspect)
+                            inspectAnim.Priority = Enum.AnimationPriority.Action
+                            inspectAnim.Looped = false
                         end
 
                         task.delay(0.05, function()
@@ -191,10 +201,10 @@ end
 function Shoot()
     if not framework.viewmodel or not framework.module then return end
 
-    equipAnim:Stop()
+    if equipAnim and equipAnim.IsPlaying then equipAnim:Stop() end   
+    if inspectAnim and inspectAnim.IsPlaying then inspectAnim:Stop() end
 
     if fireAnim then fireAnim:Play() end
-
     if fireSound then fireSound:Play() end
 
     framework.module.ammo -= 1
@@ -202,23 +212,33 @@ function Shoot()
         framework.module.damage, framework.module.headshot)
 
     debounce = true
-    wait(framework.module.debounce)
+    task.wait(framework.module.debounce)
     debounce = false
 end
+
+function Inspect()
+    -- Verifica se pode inspecionar (não estar recarregando, mirando, atirando ou equipando)
+    if canInspect and inspectAnim and not isReloading and not isEquipping and not isAiming then
+        inspectAnim:Play()
+    end
+end
+
 
 function Reload()
     if character and framework.module and framework.viewmodel and framework.module.ammo < framework.module.maxAmmo and not isReloading then
         if framework.module.canReload then
             canShoot = false
+            canInspect = false
             isReloading = true
 
             if reloadAnim then reloadAnim:Play() end
             if reloadSound then reloadSound:Play() end
             game.ReplicatedStorage.Events.WeaponEvent:FireServer("Reload")
 
-            wait(framework.module.reloadTime)
+            task.wait(framework.module.reloadTime)
 
             canShoot = true
+            canInspect = true
             isReloading = false
 
             framework.module.ammo = framework.module.maxAmmo
@@ -316,6 +336,7 @@ userInputService.InputBegan:Connect(function(input, gameProcessed)
     --Aiming
     if input.UserInputType == Enum.UserInputType.MouseButton2 and isReloading == false then
         isAiming = true
+        if inspectAnim and inspectAnim.IsPlaying then inspectAnim:Stop() end
     end
 
     --Shooting
@@ -330,6 +351,11 @@ userInputService.InputBegan:Connect(function(input, gameProcessed)
     --Reloading
     if input.KeyCode == Enum.KeyCode.R then
         Reload()
+    end
+
+    -- Inspecting
+    if input.KeyCode == Enum.KeyCode.F then
+        Inspect()
     end
 end)
 
@@ -382,7 +408,6 @@ game.ReplicatedStorage.Events.PlayerAdded.OnClientEvent:Connect(function(ply, ch
         local aimCF = CFrame.new()
 
         local isAiming = false
-        local isShooting = false
         local isReloading = false
         local canShoot = true
 

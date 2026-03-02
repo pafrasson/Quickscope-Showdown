@@ -30,6 +30,8 @@ local Settings = {
 	
 	equipSound = game.ReplicatedStorage.Sounds.Ballista.Equip;
 	equipAnim = "rbxassetid://106315787742180";
+
+    inspectAnim = "rbxassetid://85073803499728";
 }
 
 return Settings
