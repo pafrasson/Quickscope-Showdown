@@ -6,19 +6,27 @@
     "ReplicatedStorage": {
       "Shared": {
         "$path": "src/shared"
+      },
+      "Modules": {
+        "$path": "src/modules"
       }
     },
 
     "ServerScriptService": {
-      "Server": {
+      "Framework-Server": {
         "$path": "src/server"
       }
     },
 
     "StarterPlayer": {
       "StarterPlayerScripts": {
-        "Client": {
+        "Framework-Client": {
           "$path": "src/client"
+        }
+      },
+      "StarterCharacterScripts": {
+        "Character": {
+          "$path": "src/character"
         }
       }
     },
