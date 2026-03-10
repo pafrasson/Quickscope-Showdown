@@ -4,7 +4,6 @@ local humanoid = character:WaitForChild("Humanoid")
 
 local userInputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
-local debris = game:GetService("Debris")
 
 local camera = game.Workspace.CurrentCamera
 
@@ -18,6 +17,7 @@ local isReloading = false
 local isEquipping = false
 local canShoot = true
 local canInspect = true
+local canReload = true
 
 local debounce = false
 
@@ -226,7 +226,7 @@ end
 
 function Reload()
     if character and framework.module and framework.viewmodel and framework.module.ammo < framework.module.maxAmmo and not isReloading then
-        if framework.module.canReload then
+        if framework.module.canReload and canReload then
             canShoot = false
             canInspect = false
             isReloading = true
@@ -265,10 +265,14 @@ runService.RenderStepped:Connect(function()
                     userInputService.MouseIconEnabled = true
                     canInspect = false
                     canShoot = false
+                    canReload = false
+                    menu.TextButton.Modal = true
                 else
                     userInputService.MouseIconEnabled = false
                     canInspect = true
                     canShoot = true
+                    canReload = true
+                    menu.TextButton.Modal = false
                 end
             end
         end
