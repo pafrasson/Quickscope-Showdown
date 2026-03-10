@@ -247,6 +247,7 @@ function Reload()
 end
 
 local hud = player.PlayerGui:WaitForChild("HUD")
+local menu = player.PlayerGui:WaitForChild("Menu")
 
 -- Garante que se o personagem morrer e nascer de novo, atualizamos a variável
 player.CharacterAdded:Connect(function(newChar)
@@ -256,6 +257,22 @@ end)
 
 runService.RenderStepped:Connect(function()
     mouse.TargetFilter = framework.viewmodel
+
+    if menu then 
+        for i, v in pairs(menu:GetChildren()) do
+            if v:IsA("Frame") then
+                if v.Visible == true then
+                    userInputService.MouseIconEnabled = true
+                    canInspect = false
+                    canShoot = false
+                else
+                    userInputService.MouseIconEnabled = false
+                    canInspect = true
+                    canShoot = true
+                end
+            end
+        end
+    end
 
     if humanoid then
         local rot = camera.CFrame:ToObjectSpace(lastCameraCF)
