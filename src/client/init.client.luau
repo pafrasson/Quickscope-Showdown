@@ -404,45 +404,60 @@ game.ReplicatedStorage.Events.WeaponEvent.OnClientEvent:Connect(function(instruc
     end
 end)
 
-game.ReplicatedStorage.Events.PlayerAdded.OnClientEvent:Connect(function(ply, char)
-    player = game.Players.LocalPlayer
-    character = player.CharacterAdded:Wait()
+local function onCharacterSpawned(newChar)
+    character = newChar
     humanoid = character:WaitForChild("Humanoid")
 
+    -- 1. Reseta os Bools Globais (Sem usar 'local')
+    isAiming = false
+    isReloading = false
+    isEquipping = false
+    canShoot = true
+    canInspect = true
+    canReload = true
+    debounce = false
+
+    -- 2. Reseta Câmera e Inventário
+    aimCF = CFrame.new()
+    swayCF = CFrame.new()
+    lastCameraCF = camera.CFrame
+    
     framework.inventory[1] = "Ballista"
     framework.inventory[2] = "Knife"
+    
+    -- 3. Carrega a arma do slot atual
+    loadSlot(framework.inventory[framework.currentSlot])
 
-    framework.module.ammo = framework.module.maxAmmo
-    framework.module = nil
-    framework.viewmodel = nil
-    framework.currentSlot = 1
-
+    -- 4. Prepara o evento de Morte deste novo boneco
     humanoid.Died:Connect(function()
+        -- Limpa a arma antiga fisicamente primeiro
         if framework.viewmodel then
             framework.viewmodel:Destroy()
+            framework.viewmodel = nil 
         end
 
-        player = nil
-        character = nil
-        humanoid = nil
+        framework.module = nil
 
-        local aimCF = CFrame.new()
+        -- Trava o jogador para não atirar ou mirar morto
+        canInspect = false
+        canReload = false
+        canShoot = false
+        isAiming = false
+        isReloading = false
+        isEquipping = false
 
-        local isAiming = false
-        local isReloading = false
-        local canShoot = true
-
-        local debounce = false
-
-        local currentSwayAMT = 0
-        local swayAMT = -.2
-        local aimSwayAMT = .15
-        local swayCF = CFrame.new()
-        local lastCameraCF = CFrame.new()
-
-        local reloadAnim = nil
-        local fireAnim = nil
-        local fireSound = nil
+        -- Para as animações na câmera
+        if fireAnim and fireAnim.IsPlaying then fireAnim:Stop() end
+        if reloadAnim and reloadAnim.IsPlaying then reloadAnim:Stop() end
+        if equipAnim and equipAnim.IsPlaying then equipAnim:Stop() end
+        if inspectAnim and inspectAnim.IsPlaying then inspectAnim:Stop() end
     end)
-end)
-loadSlot(framework.inventory[1])
+end
+
+-- Conecta a função ao evento oficial do Roblox
+player.CharacterAdded:Connect(onCharacterSpawned)
+
+-- Se o script carregar e o boneco já existir (primeiro spawn), força a execução
+if player.Character then
+    onCharacterSpawned(player.Character)
+end

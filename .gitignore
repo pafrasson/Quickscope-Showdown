@@ -1,8 +1,19 @@
-# Project place file
-/Quickscope-Showdown.rbxlx
+# Project place files
+*.rbxlx
+*.rbxl
+/build.rbxlx
 
 # Roblox Studio lock files
-/*.rbxlx.lock
-/*.rbxl.lock
+*.rbxlx.lock
+*.rbxl.lock
 
+# Rojo and editor metadata
 sourcemap.json
+.vscode/settings.json
+.history/
+
+# Node.js dependencies (if using npm/Rokit tools)
+node_modules/
+
+# Operating System files
+.DS_Store
