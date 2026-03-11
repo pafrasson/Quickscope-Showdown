@@ -425,8 +425,8 @@ local function onCharacterSpawned(newChar)
     framework.inventory[1] = "Ballista"
     framework.inventory[2] = "Knife"
     
-    -- 3. Carrega a arma do slot atual
-    loadSlot(framework.inventory[framework.currentSlot])
+    -- 3. Carrega a arma Ballista
+    loadSlot(framework.inventory[1])
 
     -- 4. Prepara o evento de Morte deste novo boneco
     humanoid.Died:Connect(function()
