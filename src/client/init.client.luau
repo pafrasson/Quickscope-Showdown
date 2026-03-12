@@ -421,10 +421,20 @@ local function onCharacterSpawned(newChar)
     aimCF = CFrame.new()
     swayCF = CFrame.new()
     lastCameraCF = camera.CFrame
-    
     framework.inventory[1] = "Ballista"
     framework.inventory[2] = "Knife"
-    
+
+    -- Varre o inventário e restaura a munição direto no módulo cacheado
+    for _, weaponName in pairs(framework.inventory) do
+        local weaponMod = game.ReplicatedStorage.Modules:FindFirstChild(weaponName)
+        if weaponMod then
+            local reqData = require(weaponMod)
+            -- Se a arma usa munição (tem maxAmmo), reseta para o máximo
+            if reqData.maxAmmo then
+                reqData.ammo = reqData.maxAmmo
+            end
+        end
+    end  
     -- 3. Carrega a arma Ballista
     loadSlot(framework.inventory[1])
 
@@ -433,7 +443,7 @@ local function onCharacterSpawned(newChar)
         -- Limpa a arma antiga fisicamente primeiro
         if framework.viewmodel then
             framework.viewmodel:Destroy()
-            framework.viewmodel = nil 
+            framework.viewmodel = nil
         end
 
         framework.module = nil
